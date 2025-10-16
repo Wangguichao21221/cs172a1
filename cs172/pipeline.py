@@ -18,7 +18,7 @@ def train(model, device, dataloader, lr = 1e-3, weight_decay = 0.05, num_epoch =
     # Adam is a recommended optimizer, you can try different learning rate and weight_decay
     # You can use cross entropy as a loss function
     # ===================================================
-    optimizer = torch.optim.SGD(model.parameters(),lr=lr,weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     loss_func = torch.nn.CrossEntropyLoss()
     # =================== TO DO END =====================
     
@@ -31,8 +31,17 @@ def train(model, device, dataloader, lr = 1e-3, weight_decay = 0.05, num_epoch =
             # Get the prediction through the model and call the optimizer
             # ===================================================
             optimizer.zero_grad()
-            pred = model(img).reshape(-1,5,10)
-            loss = loss_func(pred, label)
+            pred = model(img)  
+            pred = pred.view(-1, 5, 10)  
+
+            # label: (batch, 5, 10) ->  (batch, 5)
+            target = torch.argmax(label, dim=2)
+
+            loss = 0
+            for i in range(5):
+                loss += loss_func(pred[:, i, :], target[:, i])
+            loss = loss / 5  # 5位数字取平均
+
             loss.backward()
             optimizer.step()
             # =================== TO DO END =====================
