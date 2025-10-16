@@ -46,7 +46,20 @@ class SimpleResBlock(nn.Module):
         # You should set the args of each layer based on the implemented of residual block
         # self.dowmsample is needed to modify the channel num of residual
         # ===========================================================
-        
+        self.conv1 = nn.Conv2d(in_channels, out_channels,
+                               kernel_size=3, padding=1, stride=stride)
+        self.conv2 = nn.Conv2d(out_channels, out_channels,
+                               kernel_size=3, padding=1,stride=1)
+        self.conv3 = nn.Conv2d(in_channels,out_channels,
+                               kernel_size=1, padding=1,stride=stride)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        self.downsample = (in_channels!=out_channels) or stride!=1
+        if self.downsample:
+            self.conv3 = nn.Conv2d(in_channels,out_channels,
+                               kernel_size=1, stride=stride)
+        else: 
+            self.conv3  = None
         # ====================== TO DO END ==========================
 
     def forward(self, x):
@@ -54,7 +67,14 @@ class SimpleResBlock(nn.Module):
         # The inputs x should be calculated sequentially with the variables defined in __init__
         # self.dowmsample is needed to modify the channel num of residual
         # ===========================================================
-        out = ...
+        Y = nn.functional.relu(self.bn1(self.conv1(x)))
+        Y = self.bn2(self.conv2(Y))
+        connect = None
+        if self.downsample:
+            connect = self.conv3(x)
+        else :
+            connect = x
+        out = nn.functional.relu(Y+connect)
         # ====================== TO DO END ==========================
         return out
 
@@ -75,21 +95,34 @@ class ResNet18(nn.Module):
         # You should set the args of each layer based on the implemented of resnet18
         # layer1/2/3/4 are residual blocks returned by self.__make_layer
         # ===========================================================
-        
+        self.convlayer = nn.Sequential(nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3),
+                            nn.BatchNorm2d(64), nn.ReLU(),
+                            nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+        self.layer1 = self._make_layer(64,64)
+        self.layer2 = self._make_layer(64,128,stride=2)
+        self.layer3 = self._make_layer(128,256,stride=2)
+        self.layer4 = self._make_layer(256,512,stride=2)
+        self.fc = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)),
+                    nn.Flatten(), nn.Linear(512, num_classes))
         # ====================== TO DO END ==========================
 
-    def _make_layer(self, in_channels, out_channels, blocks, stride=1):
+    def _make_layer(self, in_channels, out_channels, stride=1):
         # ===================== TO DO Start =========================
         # In this function, you should implement the residual block with SimpleResBlock
         # You may find nn.Sequential is a usefule function
         # ===========================================================
-        return ...
+        return nn.Sequential(*[SimpleResBlock(in_channels,out_channels,stride=stride),SimpleResBlock(out_channels,out_channels,stride=1)])
         # ====================== TO DO END ==========================
 
     def forward(self, x):
         # ===================== TO DO Start =========================
         # The inputs x should be calculated sequentially with the variables defined in __init__
         # ===========================================================
-        x = ...
+        x = self.convlayer(x)
+        x= self.layer1(x)
+        x= self.layer2(x)
+        x= self.layer3(x)
+        x= self.layer4(x)
+        x= self.fc(x)
         # ====================== TO DO END ==========================
         return x

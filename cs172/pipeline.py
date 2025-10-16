@@ -18,8 +18,8 @@ def train(model, device, dataloader, lr = 1e-3, weight_decay = 0.05, num_epoch =
     # Adam is a recommended optimizer, you can try different learning rate and weight_decay
     # You can use cross entropy as a loss function
     # ===================================================
-    optimizer = ...
-    loss_func = ...
+    optimizer = torch.optim.SGD(model.parameters(),lr=lr,weight_decay=weight_decay)
+    loss_func = torch.nn.CrossEntropyLoss()
     # =================== TO DO END =====================
     
     # If you implement the previous code correctly, 10 epoch should be enough
@@ -30,8 +30,11 @@ def train(model, device, dataloader, lr = 1e-3, weight_decay = 0.05, num_epoch =
             # ================== TO DO START ====================
             # Get the prediction through the model and call the optimizer
             # ===================================================
-            pred = ...
-            loss = ...
+            optimizer.zero_grad()
+            pred = model(img).reshape(-1,5,10)
+            loss = loss_func(pred, label)
+            loss.backward()
+            optimizer.step()
             # =================== TO DO END =====================
             sum_loss += loss.item()
             metric_collection.update(pred, label)

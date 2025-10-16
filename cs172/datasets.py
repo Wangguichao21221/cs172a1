@@ -32,7 +32,7 @@ class ImageDataset(Dataset):
         # ====================== TO DO START ========================
         # Return the number of images in the dataset
         # ===========================================================
-        return ...
+        return len(self.imgs)
         # ====================== TO DO END ==========================
 
     def __getitem__(self, idx):
@@ -49,8 +49,12 @@ class ImageDataset(Dataset):
         # Apply the transform on img if it exists
         # label (from list `self.imgs`) is like '12345#2.png'
         # ===========================================================
-        img = ...
-        label = ...
+        img = transforms.ToTensor()(img)
+        label_str = self.imgs[idx].split("#")[0]
+        label = np.zeros((5,10),dtype=np.float32)
+        for i, num in enumerate(label_str):
+            dig = int(num)
+            label[i,dig] = 1
         # ====================== TO DO END ==========================
 
         return img, label

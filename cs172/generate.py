@@ -31,7 +31,7 @@ def generate_verification(
     # char_colors = [(r1, g1, b1), ..., (rk, gk, bk)]
     # RGB should be int and in (0, 200) in case it is too similar to white
     # ===========================================================
-    char_colors = [(random.randint(1, 199),random.randint(1, 199),random.randint(1, 199)) for _ in range(num)]
+    char_colors = [(random.randint(0, 200),random.randint(0, 200),random.randint(0, 200)) for _ in range(num)]
     # ======================= TO DO END =========================
 
     # to set random char location
@@ -55,13 +55,12 @@ def generate_verification(
             # This may be a little difficult, the rotated sample only occur in last test data
             # ===========================================================
             # Create a new image for the character with white background
-            char_img = Image.new("RGB", (char_width[i], char_height[i]), color=(255, 255, 255))
+            char_img = Image.new("RGB", (char_width[i], char_height[i]+10), color=(255, 255, 255))
             char_draw = ImageDraw.Draw(char_img)
             # Draw the character on the new image - position at (0, 0) to ensure it's within bounds
-            char_draw.text((0, -char_height[i]/2), char, fill=char_colors[i], font=fonts[i])
+            char_draw.text((0,0), char, fill=char_colors[i], font=fonts[i])
             # Rotate the character image
-            char_images[i] = char_img
-            # char_images[i] = char_img.rotate(random.randint(-30, 30),fillcolor=(255,255,255),expand=True)
+            char_images[i] = char_img.rotate(random.randint(-30, 30),fillcolor=(255,255,255),expand=True)
             
             char_width[i] = char_images[i].size[0]
             char_height[i] = char_images[i].size[1]
