@@ -49,7 +49,8 @@ class ImageDataset(Dataset):
         # Apply the transform on img if it exists
         # label (from list `self.imgs`) is like '12345#2.png'
         # ===========================================================
-        img = transforms.ToTensor()(img)
+        if self.transform:
+            img = self.transform(img)
         label_str = self.imgs[idx].split("#")[0]
         label = np.zeros((5,10),dtype=np.float32)
         for i, num in enumerate(label_str):

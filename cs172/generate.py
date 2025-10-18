@@ -103,8 +103,10 @@ def generate_verification(
         # noise should have random color and random position
         # ===========================================================
         x, y = random.randint(0, width - 1), random.randint(0, height - 1)
-        white_black = [(0, 0, 0), (255, 255, 255)]
-        color = white_black[random.randint(0, 1)]
+        if random.randint(0,1) == 0:
+            color = (random.randint(0,60),random.randint(0,60),random.randint(0,60))
+        else:
+            color = (random.randint(180,255),random.randint(180,255),random.randint(180,255))
         # ======================= TO DO END =========================
         image.putpixel((x, y), color)
 
